@@ -11,3 +11,5 @@ TX = TXSerial(TXs[0])
 # test the communication
 print(TX.getName())
 print(TX.getVersion())
+programs = TX.getPrograms()
+print(programs)
