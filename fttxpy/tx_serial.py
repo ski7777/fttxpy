@@ -51,7 +51,7 @@ class TXSerial():
         ser_data = self.readToList()
         self.lockRelease()
         # remove the command itself
-        ser_data.pop(0)s
+        ser_data.pop(0)
         return(ser_data)
 
     def getName(self):
@@ -88,5 +88,16 @@ class TXSerial():
         return(programs)
 
     def loadProgram(self, name):
+        # execute CMD on TX-C
         # the load cmd does not return anything so we don´t need the serial data
         self.executeCMD("load /flash/" + name + ".bin")
+
+    def runProgram(self):
+        # execute CMD on TX-C
+        # the run cmd does not return anything so we don´t need the serial data
+        self.executeCMD("run")
+
+    def stopProgram(self):
+        # execute CMD on TX-C
+        # the stop cmd does not return anything so we don´t need the serial data
+        self.executeCMD("stop")
