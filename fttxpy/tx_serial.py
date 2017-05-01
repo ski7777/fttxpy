@@ -26,6 +26,16 @@ class TXSerial():
         # release lock
         self.trans_lock = False
 
+    def close(self):
+        self.lockAcquire()
+        self.ser.close()
+        self.lockRelease()
+
+    def reOpen(self):
+        self.lockAcquire()
+        self.ser.open()
+        self.lockRelease()
+
     def readToList(self):
         """
         Read all serial data to a list
@@ -44,6 +54,9 @@ class TXSerial():
         """
         Run a command on the shell and return the data
         """
+        if not self.ser.isOpen():
+            print("Serial communication is closed!")
+            return([])
         # get lock
         self.lockAcquire()
         # send data with carriage return and get data
