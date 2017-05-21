@@ -3,4 +3,4 @@
 #
 # import TX functionalities
 from .dev_helper import *
-from .tx_serial import *
+from .high_level import *

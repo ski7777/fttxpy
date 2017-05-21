@@ -3,6 +3,7 @@
 #
 import serial
 import time
+import threading
 
 
 class TXSerial():
@@ -11,33 +12,20 @@ class TXSerial():
         self.dev = dev
         # initialize the serial connection
         self.ser = serial.Serial(self.dev)
-        self.trans_lock = False
+        self.serial_lock = threading.Lock()
 
-        self.X1TID = 0  # will be counted up for each package sent by the PC
-        self.X1SID = 0  # will start at 0 and then set by TX-C
-
-    def lockAcquire(self):
-        """
-        Set the communication lock
-        """
-        # check and wait for released lock
-        while self.trans_lock:
-            pass
-        self.trans_lock = True
-
-    def lockRelease(self):
-        # release lock
-        self.trans_lock = False
+        self.X1_TID = 0  # will be counted up for each package sent by the PC
+        self.X1_SID = 0  # will start at 0 and then set by TX-C
 
     def close(self):
-        self.lockAcquire()
+        self.serial_lock.acquire()
         self.ser.close()
-        self.lockRelease()
+        self.serial_lock.release()
 
     def reOpen(self):
-        self.lockAcquire()
+        self.serial_lock.acquire()
         self.ser.open()
-        self.lockRelease()
+        self.serial_lock.release()
 
     def readToList(self):
         """
@@ -61,11 +49,11 @@ class TXSerial():
             print("Serial communication is closed!")
             return([])
         # get lock
-        self.lockAcquire()
+        self.serial_lock.acquire()
         # send data with carriage return and get data
         self.ser.write((cmd + "\r").encode())
         ser_data = self.readToList()
-        self.lockRelease()
+        self.serial_lock.release()
         # remove the command itself
         ser_data.pop(0)
         return(ser_data)
@@ -127,6 +115,20 @@ class TXSerial():
         # the stop cmd does not return anything so we don´t need the serial data
         self.executeCMD("stop")
 
+    # the internal X.1 data structure looks like this
+    # all other data will be calculated as needed / TID/SID will be counted aumatically
+    __exampleX1 = {
+        "from": 0,
+        "to": 0,
+        "CC": 0,
+        "TA":
+            {
+                0: "bytes",
+                2: "bytes"
+            },
+        "CRC_ok": True  # only present for recieved packages
+    }
+
     def sendX1Package(self, data):
         """
         """
@@ -141,18 +143,18 @@ class TXSerial():
         """
         send a X.1 package and return data
         """
-        self.lockAcquire()
+        self.serial_lock.acquire()
         # count the Transaction ID 1 up
         self.X1TID += 1
         # send X.1 package and get status
         ok = self.sendX1Package(in_data)
         # kill if send error
         if not ok:
-            self.lockRelease()
+            self.serial_lock.release()
             return(False, {})
         # recieve X.1 package and get status and data
         ok, ret_data = self.reciveX1Package()
-        self.lockRelease()
+        self.serial_lock.release()
         # kill if recieve error
         if not ok:
             return(False, {})
