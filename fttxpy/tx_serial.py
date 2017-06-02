@@ -58,63 +58,6 @@ class TXSerial():
         ser_data.pop(0)
         return(ser_data)
 
-    def getName(self):
-        """
-        get name of the TX-C
-        """
-        # execute CMD on TX-C
-        data = self.executeCMD("type /flash/sys_par.ini")
-        # grep specific line from data
-        for line in data:
-            if "hostname"in line:
-                return(line.split("hostname = ")[1])
-        return(None)
-
-    def getVersion(self):
-        """
-        get TX-C Firmware version
-        """
-        # execute CMD on TX-C and grep data
-        data = self.executeCMD("version")
-        return(data[0].split("V ")[1])
-
-    def getPrograms(self):
-        """
-        get programs in flash of TX-C
-        """
-        # execute CMD on TX-C
-        data = self.executeCMD("dir /flash")
-        programs = []
-        # grep sepecific lines
-        for line in data:
-            if ".bin" in line:
-                programs.append(line.split("  ")[1].split(".bin")[0])
-        return(programs)
-
-    def loadProgram(self, name):
-        """
-        Load a program from flsh by name
-        """
-        # execute CMD on TX-C
-        # the load cmd does not return anything so we don´t need the serial data
-        self.executeCMD("load /flash/" + name + ".bin")
-
-    def runProgram(self):
-        """
-        Run a loaded program
-        """
-        # execute CMD on TX-C
-        # the run cmd does not return anything so we don´t need the serial data
-        self.executeCMD("run")
-
-    def stopProgram(self):
-        """
-        Stop a running program
-        """
-        # execute CMD on TX-C
-        # the stop cmd does not return anything so we don´t need the serial data
-        self.executeCMD("stop")
-
     # the internal X.1 data structure looks like this
     # all other data will be calculated as needed / TID/SID will be counted aumatically
     __exampleX1 = {
