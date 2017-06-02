@@ -9,24 +9,24 @@ from .CommandCodes import *
 class ftTX():
 
     def __init__(self, dev):
-        self.data_lock = threading.Lock()
-        self.data = {}
+        self.DataLock = threading.Lock()
+        self.Data = {}
 
         self.connection = TXSerial(dev)
 
     def createTA(self, ta):
-        new_ta = {}
-        new_ta["io_config"] = {}
-        new_ta["input_data"] = []
+        newTA = {}
+        newTA["ioConfig"] = {}
+        newTA["InputData"] = []
         for _ in range(8):
-            new_ta["input_data"].append(0)
-        new_ta["output_data"] = []
+            newTA["InputData"].append(0)
+        newTA["OutputData"] = []
         for _ in range(8):
-            new_ta["output_data"].append({})
+            newTA["OutputData"].append({})
 
-        self.data_lock.acquire()
-        self.data[ta] = new_ta
-        self.data_lock.release()
+        self.DataLock.acquire()
+        self.Data[ta] = newTA
+        self.DataLock.release()
 
     def getName(self):
         """

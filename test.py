@@ -11,6 +11,6 @@ print(TXs)
 
 TX = fttxpy()
 programs = TX.getPrograms()
-TX.execProgramö(programs[0])
+TX.execProgram(programs[0])
 time.sleep(1)
 TX.stopProgram()

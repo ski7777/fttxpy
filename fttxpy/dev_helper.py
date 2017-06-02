@@ -5,19 +5,19 @@ import os
 import fnmatch
 import pyudev
 
-udev_context = pyudev.Context()
+udevContext = pyudev.Context()
 
 
 def getTXDevices():
-    ACM_list = []
+    ACMList = []
     path = "/dev/"
     pattern = "ttyACM*"
     for root, dirs, files in os.walk(path):
         for name in files:
             if fnmatch.fnmatch(name, pattern):
-                ACM_list.append(os.path.join(root, name))
-    TX_list = []
-    for dev in ACM_list:
-        if pyudev.Devices.from_device_file(udev_context, dev)["ID_MODEL"] == "ROBO_TX_Controller":
-            TX_list.append(dev)
-    return(TX_list)
+                ACMList.append(os.path.join(root, name))
+    TXList = []
+    for dev in ACMList:
+        if pyudev.Devices.from_device_file(udevContext, dev)["ID_MODEL"] == "ROBO_TX_Controller":
+            TXList.append(dev)
+    return(TXList)
