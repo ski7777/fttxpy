@@ -15,7 +15,7 @@ class TXSerial():
         self.ser.read_all()
         self.SerialLock = threading.Lock()
 
-        self.X1TID = 1  # will be counted up for each package sent by the PC
+        self.X1TID = 0  # will be counted up for each package sent by the PC
         self.X1SID = 0  # will start at 0 and then set by TX-C
 
     def close(self):
@@ -72,17 +72,17 @@ class TXSerial():
         #        2: bytearray([3, 4, 5])
         #    },
         "TA": {},
-        "CRCok": True  # only present for recieved packages
+        "ChecksumOK": True  # only present for recieved packages
     }
 
-    def sendX1Package(self, data):
+    def sendX1Package(self, data, printPackage=False):
         """
         """
         PackageStart = bytearray([0x02, 0x55])
         PackageEnd = bytearray([0x03])
         PackageHeaderLen = 20
         try:
-            TALen = len(data["TA"][list(data["TA"].keys())[0]]) * len(data["TA"])
+            TALen = (len(data["TA"][list(data["TA"].keys())[0]]) + 4) * len(data["TA"])
         except IndexError:
             TALen = 0
         PackageLen = (PackageHeaderLen + TALen).to_bytes(2, byteorder='big')
@@ -94,59 +94,118 @@ class TXSerial():
         PackageTIDSID = PackageTID + PackageSID
         PackageCC = data["CC"].to_bytes(4, byteorder='little')
         PackageTAs = len(data["TA"]).to_bytes(4, byteorder='little')
-        PackageHeader = PackageLen + PackageFromTo + PackageTIDSID + PackageCC + PackageTAs
+        PackageHeader = PackageStart + PackageLen + PackageFromTo + PackageTIDSID + PackageCC + PackageTAs
 
         PackageData = bytearray([])
+        for TANum, TAData in data["TA"].items():
+            TANumHex = TANum.to_bytes(4, byteorder='little')
+            PackageData = PackageData + TANumHex + TAData
+
         PackageHeaderData = PackageHeader + PackageData
 
         Chacksum = 0
-        for b in PackageHeaderData:
+        for b in PackageHeaderData[2:]:
             Chacksum -= b
         PackageChecksum = Chacksum.to_bytes(2, byteorder='big', signed=True)
-        PackageFooter = PackageChecksum + PackageEnd
 
-        PackageHeaderData = PackageHeaderData + PackageStart
+        PackageFooter = PackageChecksum + PackageEnd
         FULLPackage = PackageHeaderData + PackageFooter
 
-        i = 0
-        while True:
-            exit = False
-            array = []
-            for x in range(4):
-                try:
-                    array.append(FULLPackage[i + x])
-                except:
-                    exit = True
-            print(str(i) + ":" + " ".join("%02x" % b for b in array))
-            i += 4
-            if exit:
-                break
-
+        if printPackage:
+            print("\nSending:")
+            i = 0
+            while True:
+                exit = False
+                array = []
+                for x in range(4):
+                    try:
+                        array.append(FULLPackage[i + x])
+                    except:
+                        exit = True
+                print(str(i) + ":" + " ".join("%02x" % b for b in array))
+                i += 4
+                if exit:
+                    break
+        try:
+            self.ser.write(FULLPackage)
+        except:
+            return(False)
         return(True)
 
-    def reciveX1Package(self):
+    def reciveX1Package(self, printPackage=False):
         """
         """
-        return(True, {})
+        while self.ser.in_waiting == 0:
+            pass
+        serData = self.ser.read_all()
 
-    def X1CMD(slef, inData):
+        i = 0
+        if printPackage:
+            print("\nRecieving:")
+            while True:
+                exit = False
+                array = []
+                for x in range(4):
+                    try:
+                        array.append(serData[i + x])
+                    except:
+                        exit = True
+                print(str(i) + ":" + " ".join("%02x" % b for b in array))
+                i += 4
+                if exit:
+                    break
+
+        Package = {}
+        #Package["raw"] = serData
+        PackageChecksum = int.from_bytes(serData[-3:-1], byteorder='big')
+        PackageChecksumArray = serData[2:-3]
+        PackageCalcChacksum = 65536
+        for b in PackageChecksumArray:
+            PackageCalcChacksum -= b
+        ChecksumOK = PackageCalcChacksum == PackageChecksum
+        Package["ChecksumOK"] = ChecksumOK
+        if ChecksumOK:
+            PackageLen = int.from_bytes(serData[2:4], byteorder='big')
+            Package["from"] = int.from_bytes(serData[4:8], byteorder='little')
+            Package["to"] = int.from_bytes(serData[8:12], byteorder='little')
+            Package["CC"] = int.from_bytes(serData[16:20], byteorder='little')
+            TAs = int.from_bytes(serData[20:24], byteorder='little')
+            self.X1SID = int.from_bytes(serData[14:16], byteorder='little')
+            Package["TA"] = {}
+            PackageTALen = PackageLen - 20
+            if TAs:
+                SingleTALen = int(PackageTALen / TAs)
+                if PackageTALen % TAs != 0:
+                    return(False, Package)
+                for TAIndex in range(TAs):
+                    TAArrayStart = 24 + (SingleTALen * TAIndex)
+                    TAArrayStop = 24 + (SingleTALen * (TAIndex + 1))
+                    TAArray = serData[TAArrayStart:TAArrayStop]
+                    Package["TA"][int.from_bytes(TAArray[:4], byteorder='little')] = TAArray[4:]
+            return(True, Package)
+        else:
+            return(False, Package)
+
+    def X1CMD(self, inData, printPackage=False):
         """
         send a X.1 package and return data
         """
+        st = time.time()
         self.SerialLock.acquire()
         # count the Transaction ID 1 up
         self.X1TID += 1
         # send X.1 package and get status
-        ok = self.sendX1Package(inData)
+        ok = self.sendX1Package(inData, printPackage)
         # kill if send error
         if not ok:
             self.SerialLock.release()
             return(False, {})
         # recieve X.1 package and get status and data
-        ok, retData = self.reciveX1Package()
+        ok, retData = self.reciveX1Package(printPackage)
         self.SerialLock.release()
         # kill if recieve error
         if not ok:
             return(False, {})
         # return ok status and data
-        return(True, {})
+        print("Ping:", str((time.time() - st) * 1000), "mSek")
+        return(True, {"raw": retData})

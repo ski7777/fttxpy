@@ -2,15 +2,30 @@
 # -*- coding: utf-8 -*-
 #
 from fttxpy import *
-import time
-
-# get a list of TXs and connect to the first one
-TXs = getTXDevices()
-print("Found " + str(len(TXs)) + " TX Controller")
-print(TXs)
-
 TX = fttxpy()
-programs = TX.getPrograms()
-TX.execProgram(programs[0])
-time.sleep(1)
-TX.stopProgram()
+print("-----")
+Pack = {
+    "from": 2,
+    "to": 1,
+    "CC": 1,
+    "TA": {},
+}
+
+print("Sending CC:", str(Pack["CC"]))
+x = TX.connection.X1CMD(Pack)#, printPackage=True)
+print(x[0])
+print(x[1])
+
+
+print("-----")
+Pack = {
+    "from": 2,
+    "to": 1,
+    "CC": 6,
+    "TA": {0: bytearray([])},
+}
+
+print("Sending CC:", str(Pack["CC"]))
+x = TX.connection.X1CMD(Pack)  # , printPackage=True)
+print(x[0])
+print(x[1])
