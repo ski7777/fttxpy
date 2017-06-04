@@ -12,6 +12,7 @@ class TXSerial():
         self.dev = dev
         # initialize the serial connection
         self.ser = serial.Serial(self.dev)
+        self.ser.read_all()
         self.SerialLock = threading.Lock()
 
         self.X1TID = 1  # will be counted up for each package sent by the PC
@@ -25,6 +26,7 @@ class TXSerial():
     def reOpen(self):
         self.SerialLock.acquire()
         self.ser.open()
+        self.ser.read_all()
         self.SerialLock.release()
 
     def readToList(self):
