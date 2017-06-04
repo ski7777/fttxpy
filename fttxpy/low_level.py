@@ -3,7 +3,6 @@
 #
 import threading
 from .tx_serial import *
-from .CommandCodes import *
 
 
 class ftTX():

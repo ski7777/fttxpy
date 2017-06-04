@@ -4,6 +4,7 @@
 import serial
 import time
 import threading
+from .CommandCodes import *
 
 
 class TXSerial():
