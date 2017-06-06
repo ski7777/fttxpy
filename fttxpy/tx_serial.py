@@ -4,7 +4,7 @@
 import serial
 import time
 import threading
-from .CommandCodes import *
+from . import Debug
 
 
 class TXSerial():
@@ -76,7 +76,7 @@ class TXSerial():
         "ChecksumOK": True  # only present for recieved packages
     }
 
-    def sendX1Package(self, data, printPackage=False):
+    def sendX1Package(self, data):
         """
         """
         PackageStart = bytearray([0x02, 0x55])
@@ -112,7 +112,7 @@ class TXSerial():
         PackageFooter = PackageChecksum + PackageEnd
         FULLPackage = PackageHeaderData + PackageFooter
 
-        if printPackage:
+        if Debug.PrintPackageRaw:
             print("\nSending:")
             i = 0
             while True:
@@ -133,7 +133,7 @@ class TXSerial():
             return(False)
         return(True)
 
-    def reciveX1Package(self, printPackage=False):
+    def reciveX1Package(self):
         """
         """
         while self.ser.in_waiting == 0:
@@ -141,7 +141,7 @@ class TXSerial():
         serData = self.ser.read_all()
 
         i = 0
-        if printPackage:
+        if Debug.PrintPackageRaw:
             print("\nRecieving:")
             while True:
                 exit = False
@@ -187,7 +187,7 @@ class TXSerial():
         else:
             return(False, Package)
 
-    def X1CMD(self, inData, printPackage=False):
+    def X1CMD(self, inData):
         """
         send a X.1 package and return data
         """
@@ -196,17 +196,15 @@ class TXSerial():
         # count the Transaction ID 1 up
         self.X1TID += 1
         # send X.1 package and get status
-        ok = self.sendX1Package(inData, printPackage)
+        execOK = self.sendX1Package(inData)
         # kill if send error
-        if not ok:
+        if not execOK:
             self.SerialLock.release()
             return(False, {})
         # recieve X.1 package and get status and data
-        ok, retData = self.reciveX1Package(printPackage)
+        execOK, retData = self.reciveX1Package()
         self.SerialLock.release()
-        # kill if recieve error
-        if not ok:
-            return(False, {})
+        if Debug.PrintPackagePing:
+            print("Ping:", str((time.time() - st) * 1000), "mSek")
         # return ok status and data
-        print("Ping:", str((time.time() - st) * 1000), "mSek")
-        return(True, {"raw": retData})
+        return(execOK, retData)

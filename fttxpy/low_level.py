@@ -83,3 +83,17 @@ class ftTX():
         # execute CMD on TX-C
         # the stop cmd does not return anything so we don´t need the serial data
         self.connection.executeCMD("stop")
+
+    def executeX1(self, data):
+        execOK, retData = self.connection.X1CMD(data)
+        if not execOK:
+            print("FAIL!")
+            return(False)
+        procOK = x1Recv[retData["CC"]](self, retData)
+        if not procOK:
+            print("Fail!")
+            return(False)
+        return(True)
+
+
+from .CommandCodes import x1Recv, x1Send

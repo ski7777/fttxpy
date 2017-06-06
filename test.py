@@ -12,9 +12,7 @@ Pack = {
 }
 
 print("Sending CC:", str(Pack["CC"]))
-x = TX.connection.X1CMD(Pack)#, printPackage=True)
-print(x[0])
-print(x[1])
+TX.executeX1(Pack)
 
 
 print("-----")
@@ -26,6 +24,4 @@ Pack = {
 }
 
 print("Sending CC:", str(Pack["CC"]))
-x = TX.connection.X1CMD(Pack)  # , printPackage=True)
-print(x[0])
-print(x[1])
+TX.executeX1(Pack)
