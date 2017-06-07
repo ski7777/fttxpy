@@ -121,7 +121,7 @@ class TXSerial():
                 for x in range(4):
                     try:
                         array.append(FULLPackage[i + x])
-                    except:
+                    except IndexError:
                         exit = True
                 print(str(i) + ":" + " ".join("%02x" % b for b in array))
                 i += 4
@@ -129,7 +129,7 @@ class TXSerial():
                     break
         try:
             self.ser.write(FULLPackage)
-        except:
+        except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException):
             return(False)
         return(True)
 
@@ -149,7 +149,7 @@ class TXSerial():
                 for x in range(4):
                     try:
                         array.append(serData[i + x])
-                    except:
+                    except IndexError:
                         exit = True
                 print(str(i) + ":" + " ".join("%02x" % b for b in array))
                 i += 4
