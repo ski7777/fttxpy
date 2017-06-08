@@ -11,6 +11,14 @@ class ftTX():
         self.DataLock = threading.Lock()
         self.Data = {}
 
+        self.X1PackageSender = 2
+        self.X1PackageReciever = 1
+
+        self.DefaultPackage = {
+            "from": self.X1PackageSender,
+            "to": self.X1PackageReciever,
+            "TA": {},
+        }
         self.connection = TXSerial(dev)
 
     def createTA(self, ta):
@@ -95,5 +103,9 @@ class ftTX():
             return(False)
         return(True)
 
+    def openConnection(self):
+        data = self.DefaultPackage.copy()
+        data["CC"] = x1Send["echo"]
+        return(self.executeX1(data))
 
 from .CommandCodes import x1Recv, x1Send

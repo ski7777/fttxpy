@@ -4,15 +4,10 @@
 from fttxpy import *
 TX = fttxpy()
 print("-----")
-Pack = {
-    "from": 2,
-    "to": 1,
-    "CC": 1,
-    "TA": {},
-}
 
-print("Sending CC:", str(Pack["CC"]))
-TX.executeX1(Pack)
+
+print("Opening!")
+print(TX.openConnection())
 
 
 print("-----")
