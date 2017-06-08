@@ -21,6 +21,10 @@ class ftTX():
         }
         self.connection = TXSerial(dev)
 
+        self.Thread = self.KeepConnectionThread(self)
+        self.Thread.setDaemon(True)
+        self.Thread.start()
+
     def createTA(self, ta):
         newTA = {}
         newTA["ioConfig"] = {}
@@ -95,11 +99,9 @@ class ftTX():
     def executeX1(self, data):
         execOK, retData = self.connection.X1CMD(data)
         if not execOK:
-            print("FAIL!")
             return(False)
         procOK = x1Recv[retData["CC"]](self, retData)
         if not procOK:
-            print("Fail!")
             return(False)
         return(True)
 
@@ -107,5 +109,22 @@ class ftTX():
         data = self.DefaultPackage.copy()
         data["CC"] = x1Send["echo"]
         return(self.executeX1(data))
+
+    class KeepConnectionThread(threading.Thread):
+
+        def __init__(self, parent):
+            threading.Thread.__init__(self)
+            self.parent = parent
+            self.stopEvent = threading.Event()
+
+        def run(self):
+            while not self.stopEvent.isSet():
+                #Every failing serial Communication will trigger:
+                #self.stopThread()
+                pass
+
+        def stopThread(self):
+            self.stopEvent.set()
+            print("Connection to the TX-Controller has been lost!")
 
 from .CommandCodes import x1Recv, x1Send
