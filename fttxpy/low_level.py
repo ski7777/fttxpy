@@ -9,6 +9,7 @@ class ftTX():
 
     def __init__(self, dev):
         self.DataLock = threading.Lock()
+        self.ConfigChanged = threading.Event()
         self.Data = {}
 
         self.X1PackageSender = 2
@@ -21,9 +22,14 @@ class ftTX():
         }
         self.connection = TXSerial(dev)
 
+        execOK = self.openConnection()
+        if not execOK:
+            print("Could not connect to TX-Controller!")
+            return(False)
         self.Thread = self.KeepConnectionThread(self)
         self.Thread.setDaemon(True)
         self.Thread.start()
+        return(True)
 
     def createTA(self, ta):
         newTA = {}
@@ -34,30 +40,22 @@ class ftTX():
         newTA["OutputData"] = []
         for _ in range(8):
             newTA["OutputData"].append({})
-
+        newTA["meta"] = {}
         self.DataLock.acquire()
         self.Data[ta] = newTA
         self.DataLock.release()
 
-    def getName(self):
+    def getName(self, TXn=0):
         """
         get name of the TX-C
         """
-        # execute CMD on TX-C
-        data = self.connection.executeCMD("type /flash/sys_par.ini")
-        # grep specific line from data
-        for line in data:
-            if "hostname"in line:
-                return(line.split("hostname = ")[1])
-        return(None)
+        return(self.Data[TXn]["meta"]["name"])
 
-    def getVersion(self):
+    def getVersion(self, TXn=0):
         """
         get TX-C Firmware version
         """
-        # execute CMD on TX-C and grep data
-        data = self.connection.executeCMD("version")
-        return(data[0].split("V ")[1])
+        return(self.Data[TXn]["meta"]["ver"])
 
     def getPrograms(self):
         """
@@ -98,6 +96,7 @@ class ftTX():
 
     def executeX1(self, data):
         execOK, retData = self.connection.X1CMD(data)
+        # print(retData)
         if not execOK:
             return(False)
         procOK = x1Recv[retData["CC"]](self, retData)
@@ -108,7 +107,45 @@ class ftTX():
     def openConnection(self):
         data = self.DefaultPackage.copy()
         data["CC"] = x1Send["echo"]
-        return(self.executeX1(data))
+        execOK = self.executeX1(data)
+        if not execOK:
+            return(False)
+        print("x")
+        data = self.DefaultPackage.copy()
+        data["CC"] = x1Send["info"]
+        data["TA"][0] = bytearray([])
+        execOK = self.executeX1(data)
+        if not execOK:
+            return(False)
+        return(True)
+
+    def exchangeData(self):
+        print("Data!")
+        time.sleep(2)
+        return(True)
+
+    def exchangeConfig(self):
+        return(True)
+
+    def X1InfoReply(self, data):
+        for TAn, TAd in data["TA"].items():
+            print(len(TAd))
+            name = TAd[0:17]
+            while True:
+                if name[len(name) - 1] == 0x00:
+                    name = name[:len(name) - 1]
+                else:
+                    break
+            addr = TAd[17:34]
+            ver = str(TAd[54]) + "." + str(TAd[55])
+            if not TAn in self.Data.keys():
+                self.createTA(TAn)
+            self.DataLock.acquire()
+            self.Data[TAn]["meta"]["name"] = name.decode("utf-8")
+            self.Data[TAn]["meta"]["addr"] = addr.decode("utf-8")
+            self.Data[TAn]["meta"]["ver"] = ver
+            self.DataLock.release()
+        return(True)
 
     class KeepConnectionThread(threading.Thread):
 
@@ -121,7 +158,15 @@ class ftTX():
             while not self.stopEvent.isSet():
                 # Every failing serial Communication will trigger:
                 # self.stopThread()
-                pass
+                if self.parent.ConfigChanged.isSet():
+                    runOK = self.parent.exchangeConfig
+                    if not runOK:
+                        self.stopThread()
+                        break
+                runOK = self.parent.exchangeData()
+                if not runOK:
+                    self.stopThread()
+                    break
 
         def stopThread(self):
             self.stopEvent.set()
