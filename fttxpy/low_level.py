@@ -119,8 +119,8 @@ class ftTX():
 
         def run(self):
             while not self.stopEvent.isSet():
-                #Every failing serial Communication will trigger:
-                #self.stopThread()
+                # Every failing serial Communication will trigger:
+                # self.stopThread()
                 pass
 
         def stopThread(self):
