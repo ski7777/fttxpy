@@ -22,6 +22,16 @@ class fttxpy(ftTX):
             raise FileNotFoundError
         ftTX.__init__(self, dev)
         print("Connected to", self.getName(), "Version", self.getVersion())
+        self.extensionInfo()
+
+    def extensionInfo(self):
+        extList = list(self.Data.keys())
+        extList.remove(0)
+        extStrList = []
+        if len(extList) > 0:
+            for ext in extList:
+                extStrList.append("Ext " + str(ext) + " (" + self.getName(ext) + ", " + self.getVersion(ext) + ")")
+            print("Found extensions:", ", ".join(extStrList))
 
     def execProgram(self, name):
         self.loadProgram(name)
