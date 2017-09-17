@@ -28,11 +28,10 @@ class ftTX():
         execOK = self.openConnection()
         if not execOK:
             print("Could not connect to TX-Controller!")
-            return(False)
+            raise ConnectionAbortedError
         self.Thread = self.KeepConnectionThread(self)
         self.Thread.setDaemon(True)
         self.Thread.start()
-        return(True)
 
     def createTA(self, ta):
         newTA = {}
@@ -281,7 +280,7 @@ class ftTX():
                 # Every failing serial Communication will trigger:
                 # self.stopThread()
                 if self.parent.ConfigChanged.isSet():
-                    runOK = self.parent.exchangeConfig
+                    runOK = self.parent.exchangeConfig()
                     if not runOK:
                         self.stopThread()
                         break
@@ -296,6 +295,7 @@ class ftTX():
             self.stopEvent.set()
             print("Connection to the TX-Controller has been lost!")
             self.parent.connection.close()
+            raise BrokenPipeError
 
 
 from .CommandCodes import x1Recv, x1Send

@@ -12,14 +12,14 @@ class fttxpy(ftTX):
         if dev == "":
             TXs = getTXDevices()
             if len(TXs) == 0:
-                print("No TXT-Controllers found!")
-                return
+                print("No TX-Controllers found!")
+                raise FileNotFoundError
             else:
                 print("Found", str(len(TXs)), "TX-Controller(s). Automatically selecting the first one!")
                 dev = TXs[0]
         if not os.path.exists(dev):
             print("Could not find specified TX-Controller!")
-            return
+            raise FileNotFoundError
         ftTX.__init__(self, dev)
         print("Connected to", self.getName(), "Version", self.getVersion())
 
