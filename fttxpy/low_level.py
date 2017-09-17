@@ -264,8 +264,8 @@ class ftTX():
         TAd = data["TA"][0]
         ExtData = TAd[0:8]
         for TXn in range(8):
-            if ExtData[TXn] != 0:
-                self.createTA(TXn)
+            if ExtData[TXn] == 1:
+                self.createTA(TXn + 1)
         return(True)
 
     class KeepConnectionThread(threading.Thread):
