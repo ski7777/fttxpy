@@ -7,6 +7,9 @@ class Debug():
     PrintPackageRaw = False
     PrintUnknownPackageRaw = True
     PrintPackagePing = False
+    PrintChecksumError = False
+    PrintPackageSendError = False
+
 
 # import TX functionalities
 from .dev_helper import *

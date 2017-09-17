@@ -191,20 +191,29 @@ class TXSerial():
         """
         send a X.1 package and return data
         """
-        st = time.time()
         self.SerialLock.acquire()
-        # count the Transaction ID 1 up
-        self.X1TID += 1
-        # send X.1 package and get status
-        execOK = self.sendX1Package(inData)
-        # kill if send error
-        if not execOK:
-            self.SerialLock.release()
-            return(False, {})
-        # recieve X.1 package and get status and data
-        execOK, retData = self.reciveX1Package()
+        for n in range(20):
+            st = time.time()
+            # count the Transaction ID 1 up
+            self.X1TID += 1
+            # send X.1 package and get status
+            execOK = self.sendX1Package(inData)
+            # kill if send error
+            if not execOK:
+                if Debug.PrintPackageSendError:
+                    print("Package send error! Try", n + 1)
+                continue
+            # recieve X.1 package and get status and data
+            execOK, retData = self.reciveX1Package()
+            if retData["ChecksumOK"] == False:
+                if Debug.PrintChecksumError:
+                    print("Checksum error! Try", n + 1)
+                continue
+            else:
+                self.SerialLock.release()
+                if Debug.PrintPackagePing:
+                    print("Ping:", str((time.time() - st) * 1000), "mSek")
+                # return ok status and data
+                return(execOK, retData)
         self.SerialLock.release()
-        if Debug.PrintPackagePing:
-            print("Ping:", str((time.time() - st) * 1000), "mSek")
-        # return ok status and data
-        return(execOK, retData)
+        return(False, {})
