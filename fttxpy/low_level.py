@@ -54,9 +54,9 @@ class ftTX():
         newTA["Counter"]["ResetID"] = []
         for _ in range(4):
             newTA["Counter"]["ResetID"].append(0)
-        newTA["Counter"]["ResetIDTX"] = []
+        newTA["Counter"]["Executed"] = []
         for _ in range(4):
-            newTA["Counter"]["ResetIDTX"].append(0)
+            newTA["Counter"]["Executed"].append(0)
         newTA["Counter"]["Count"] = []
         for _ in range(4):
             newTA["Counter"]["Count"].append(0)
@@ -83,9 +83,9 @@ class ftTX():
         newTA["Output"]["ID"] = []
         for _ in range(4):
             newTA["Output"]["ID"].append(0)
-        newTA["Output"]["IDTX"] = []
+        newTA["Output"]["PosReached"] = []
         for _ in range(4):
-            newTA["Output"]["IDTX"].append(0)
+            newTA["Output"]["PosReached"].append(True)
 
         newTA["meta"] = {}
         newTA["meta"]["name"] = ""
@@ -228,9 +228,9 @@ class ftTX():
             for n in range(4):
                 self.Data[TAn]["Counter"]["State"][n] = not bool(TAd[16 + n])
                 self.Data[TAn]["Counter"]["Count"][n] = int.from_bytes(TAd[20 + (2 * n):20 + (2 * n) + 2], byteorder='little', signed=True)
-                self.Data[TAn]["Counter"]["ResetIDTX"][n] = int.from_bytes(TAd[32 + (2 * n):32 + (2 * n) + 2], byteorder='little', signed=False)
+                self.Data[TAn]["Counter"]["Executed"][n] = int.from_bytes(TAd[32 + (2 * n):32 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Counter"]["ResetID"][n]
             for n in range(4):
-                self.Data[TAn]["Output"]["IDTX"][n] = int.from_bytes(TAd[40 + (2 * n):40 + (2 * n) + 2], byteorder='little', signed=False)
+                self.Data[TAn]["Output"]["PosReached"][n] = int.from_bytes(TAd[40 + (2 * n):40 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Output"]["ID"][n]
             self.DataLock.release()
         return(True)
 
