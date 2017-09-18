@@ -11,6 +11,7 @@ class ftTX():
     def __init__(self, dev):
         self.DataLock = threading.Lock()
         self.ConfigChanged = threading.Event()
+        self.exchangeDataEvent = threading.Event()
         self.Data = {}
 
         self.exchangeInterval = 0.1
@@ -267,6 +268,11 @@ class ftTX():
                 self.createTA(TXn + 1)
         return(True)
 
+    def waitOnDataExchange(self):
+        while not self.exchangeDataEvent.isSet():
+            pass
+        self.exchangeDataEvent.wait()
+
     class KeepConnectionThread(threading.Thread):
 
         def __init__(self, parent):
@@ -288,8 +294,10 @@ class ftTX():
                 if not runOK:
                     self.stopThread()
                     break
+                self.parent.exchangeDataEvent.set()
                 while time.time() - self.parent.exchangeInterval < start:
                     time.sleep(0.005)
+                self.parent.exchangeDataEvent.clear()
 
         def stopThread(self):
             self.stopEvent.set()
