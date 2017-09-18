@@ -7,27 +7,13 @@ import time
 from fttxpy import *
 
 TX = fttxpy()
+TX.Data[0]["Output"]["Distance"][0] = 500
+TX.Data[0]["Output"]["ID"][0] += 1
+TX.Data[0]["Output"]["Duty"][0] = 512
+TX.waitOnDataExchange()
+print("Sent")
 while True:
-    TX.Data[0]["Output"]["Duty"][1] = 0
-    TX.Data[1]["Output"]["Duty"][1] = 0
-    for x in range(1, 513):
-        TX.Data[0]["Output"]["Duty"][0] = x
-        TX.Data[1]["Output"]["Duty"][0] = x
-        time.sleep(0.005 + 0.005 / 512 * x)
-    time.sleep(0.2)
-    for x in reversed(range(0, 512)):
-        TX.Data[0]["Output"]["Duty"][0] = x
-        TX.Data[1]["Output"]["Duty"][0] = x
-        time.sleep(0.005 + 0.005 / 512 * x)
-    TX.Data[0]["Output"]["Duty"][0] = 0
-    TX.Data[1]["Output"]["Duty"][0] = 0
-    for x in range(1, 513):
-        TX.Data[0]["Output"]["Duty"][1] = x
-        TX.Data[1]["Output"]["Duty"][1] = x
-        time.sleep(0.005 + 0.005 / 512 * x)
-    time.sleep(0.2)
-    for x in reversed(range(0, 512)):
-        TX.Data[0]["Output"]["Duty"][1] = x
-        TX.Data[1]["Output"]["Duty"][1] = x
-        time.sleep(0.005 + 0.005 / 512 * x)
+    if TX.Data[0]["Output"]["PosReached"][0]:
+        print("OK")
+        break
 #print(json.dumps(TX.Data, indent=4, sort_keys=True))
