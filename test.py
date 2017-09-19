@@ -7,13 +7,17 @@ import time
 from fttxpy import *
 
 TX = fttxpy()
-TX.Data[0]["Output"]["Distance"][0] = 500
-TX.Data[0]["Output"]["ID"][0] += 1
-TX.Data[0]["Output"]["Duty"][0] = 512
-TX.waitOnDataExchange()
-print("Sent")
-while True:
-    if TX.Data[0]["Output"]["PosReached"][0]:
-        print("OK")
-        break
+master = TX.robotx()
+ext1 = TX.robotx(1)
+mot1 = master.motor(1)
+mot2 = master.motor(2)
+mot1.setDistance(1000, mot2)
+mot1.setSpeed(512)
+mot2.setSpeed(512)
+for _ in range(5):
+    TX.waitOnDataExchange()
+while not (mot1.finished() and mot2.finished()):
+    print(mot1.getCurrentDistance(), mot2.getCurrentDistance())
+    time.sleep(0.1)
+input()
 #print(json.dumps(TX.Data, indent=4, sort_keys=True))
