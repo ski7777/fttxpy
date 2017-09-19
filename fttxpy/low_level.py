@@ -51,9 +51,9 @@ class ftTX():
         newTA["Counter"]["Reset"] = []
         for _ in range(4):
             newTA["Counter"]["Reset"].append(False)
-        newTA["Counter"]["ResetID"] = []
+        newTA["Counter"]["ID"] = []
         for _ in range(4):
-            newTA["Counter"]["ResetID"].append(0)
+            newTA["Counter"]["ID"].append(0)
         newTA["Counter"]["Executed"] = []
         for _ in range(4):
             newTA["Counter"]["Executed"].append(0)
@@ -200,9 +200,9 @@ class ftTX():
             CounterResetData = bytearray()
             for n in range(4):
                 if TXd["Counter"]["Reset"][n] == True:
-                    TXd["Counter"]["ResetID"][n] += 1
+                    TXd["Counter"]["ID"][n] += 1
                     TXd["Counter"]["Reset"][n] = False
-                CounterResetData = CounterResetData + TXd["Counter"]["ResetID"][n].to_bytes(2, byteorder='little')
+                CounterResetData = CounterResetData + TXd["Counter"]["ID"][n].to_bytes(2, byteorder='little')
             SyncData = bytearray()
             DutyData = bytearray()
             DistanceData = bytearray()
@@ -228,7 +228,7 @@ class ftTX():
             for n in range(4):
                 self.Data[TAn]["Counter"]["State"][n] = not bool(TAd[16 + n])
                 self.Data[TAn]["Counter"]["Count"][n] = int.from_bytes(TAd[20 + (2 * n):20 + (2 * n) + 2], byteorder='little', signed=True)
-                self.Data[TAn]["Counter"]["Executed"][n] = int.from_bytes(TAd[32 + (2 * n):32 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Counter"]["ResetID"][n]
+                self.Data[TAn]["Counter"]["Executed"][n] = int.from_bytes(TAd[32 + (2 * n):32 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Counter"]["ID"][n]
             for n in range(4):
                 self.Data[TAn]["Output"]["PosReached"][n] = int.from_bytes(TAd[40 + (2 * n):40 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Output"]["ID"][n]
             self.DataLock.release()
