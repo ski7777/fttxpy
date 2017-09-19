@@ -273,6 +273,53 @@ class ftTX():
             pass
         self.exchangeDataEvent.wait()
 
+    def incrMotID(self, ext, mot):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(mot) == int and mot in range(4))
+        self.DataLock.acquire()
+        self.Data[ext]["Output"]["ID"][mot] += 1
+        self.DataLock.release()
+
+    def setOutDuty(self, ext, out, duty):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(out) == int and out in range(8))
+        assert(type(duty) == int and duty in range(-512, 513))
+        self.DataLock.acquire()
+        self.Data[ext]["Output"]["Duty"][out] = duty
+        self.DataLock.release()
+
+    def setMotSync(self, ext, master, slave):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(master) == int and master in range(4))
+        assert(type(slave) == int and slave in range(5))
+        self.DataLock.acquire()
+        self.Data[ext]["Output"]["Sync"][master] = slave
+        self.DataLock.release()
+
+    def setMotDistance(self, ext, mot, distance):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(mot) == int and mot in range(4))
+        assert(type(distance) == int)
+        self.DataLock.acquire()
+        self.Data[ext]["Output"]["Distance"][mot] = distance
+        self.DataLock.release()
+
+    def getMotIsFinished(self, ext, mot):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(mot) == int and mot in range(4))
+        self.DataLock.acquire()
+        finished = self.Data[ext]["Output"]["PosReached"][mot]
+        self.DataLock.release()
+        return(finished)
+
+    def getCounterValue(self, ext, cnt):
+        assert(type(ext) == int and ext in self.Data)
+        assert(type(cnt) == int and cnt in range(4))
+        self.DataLock.acquire()
+        value = self.Data[ext]["Counter"]["Count"][cnt]
+        self.DataLock.release()
+        return(value)
+
     class KeepConnectionThread(threading.Thread):
 
         def __init__(self, parent):
