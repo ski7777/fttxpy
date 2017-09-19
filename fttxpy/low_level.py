@@ -99,12 +99,14 @@ class ftTX():
         """
         get name of the TX-C
         """
+        assert(TXn in self.Data)
         return(self.Data[TXn]["meta"]["name"])
 
     def getVersion(self, TXn=0):
         """
         get TX-C Firmware version
         """
+        assert(TXn in self.Data)
         return(self.Data[TXn]["meta"]["ver"])
 
     def getPrograms(self):
