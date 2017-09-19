@@ -36,3 +36,19 @@ class fttxpy(ftTX):
     def execProgram(self, name):
         self.loadProgram(name)
         self.runProgram()
+
+    def robotx(self, ext=0):
+        assert(type(ext) == int and ext in self.Data)
+
+        class robotx():
+            def __init__(self, parent, ext):
+                self.parent = parent
+                self.ext = ext
+
+            def getName(self):
+                return(self.parent.getName(self.ext))
+
+            def getVersion(self):
+                return(self.parent.getVersion(self.ext))
+
+        return(robotx(self, ext))
