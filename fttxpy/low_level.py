@@ -99,15 +99,29 @@ class ftTX():
         """
         get name of the TX-C
         """
-        assert(TXn in self.Data)
-        return(self.Data[TXn]["meta"]["name"])
+        self.DataLock.acquire()
+        try:
+            assert(type(TXn) == int and TXn in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        data = self.Data[TXn]["meta"]["name"]
+        self.DataLock.release()
+        return(data)
 
     def getVersion(self, TXn=0):
         """
         get TX-C Firmware version
         """
-        assert(TXn in self.Data)
-        return(self.Data[TXn]["meta"]["ver"])
+        self.DataLock.acquire()
+        try:
+            assert(type(TXn) == int and TXn in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        data = self.Data[TXn]["meta"]["ver"]
+        self.DataLock.release()
+        return(data)
 
     def getPrograms(self):
         """
@@ -189,8 +203,10 @@ class ftTX():
     def X1InfoSend(self):
         data = self.DefaultPackage.copy()
         data["CC"] = x1Send["info"]
+        self.DataLock.acquire()
         for n in self.Data.keys():
             data["TA"][n] = bytearray()
+        self.DataLock.release()
         execOK = self.executeX1(data)
         return(execOK)
 
@@ -276,48 +292,70 @@ class ftTX():
         self.exchangeDataEvent.wait()
 
     def incrMotID(self, ext, mot):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(mot) == int and mot in range(4))
         self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         self.Data[ext]["Output"]["ID"][mot] += 1
         self.DataLock.release()
 
     def setOutDuty(self, ext, out, duty):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(out) == int and out in range(8))
         assert(type(duty) == int and duty in range(-512, 513))
         self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         self.Data[ext]["Output"]["Duty"][out] = duty
         self.DataLock.release()
 
     def setMotSync(self, ext, master, slave):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(master) == int and master in range(4))
         assert(type(slave) == int and slave in range(5))
         self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         self.Data[ext]["Output"]["Sync"][master] = slave
         self.DataLock.release()
 
     def setMotDistance(self, ext, mot, distance):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(mot) == int and mot in range(4))
         assert(type(distance) == int)
         self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         self.Data[ext]["Output"]["Distance"][mot] = distance
         self.DataLock.release()
 
     def getMotIsFinished(self, ext, mot):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(mot) == int and mot in range(4))
-        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         finished = self.Data[ext]["Output"]["PosReached"][mot]
         self.DataLock.release()
         return(finished)
 
     def getCounterValue(self, ext, cnt):
-        assert(type(ext) == int and ext in self.Data)
         assert(type(cnt) == int and cnt in range(4))
-        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
         value = self.Data[ext]["Counter"]["Count"][cnt]
         self.DataLock.release()
         return(value)
