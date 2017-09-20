@@ -367,6 +367,7 @@ class ftTX():
             threading.Thread.__init__(self)
             self.parent = parent
             self.stopEvent = threading.Event()
+            self.parent.ConfigChanged.set()
 
         def run(self):
             while not self.stopEvent.isSet():
