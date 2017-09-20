@@ -340,6 +340,7 @@ class ftTX():
 
     def getMotIsFinished(self, ext, mot):
         assert(type(mot) == int and mot in range(4))
+        self.DataLock.acquire()
         try:
             assert(type(ext) == int and ext in self.Data)
         except AssertionError:
@@ -351,6 +352,7 @@ class ftTX():
 
     def getCounterValue(self, ext, cnt):
         assert(type(cnt) == int and cnt in range(4))
+        self.DataLock.acquire()
         try:
             assert(type(ext) == int and ext in self.Data)
         except AssertionError:
