@@ -5,6 +5,11 @@ import threading
 import time
 from .tx_serial import *
 
+C_INPUT_MODE_U = 0
+C_INPUT_MODE_R = 1
+C_INPUT_MODE_R2 = 2
+C_INPUT_MODE_US = 3
+
 
 class ftTX():
 
