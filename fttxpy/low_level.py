@@ -191,7 +191,17 @@ class ftTX():
         return(True)
 
     def exchangeConfig(self):
+        self.ConfigChanged.clear()
+        execOK = self.X1ConfigWSend()
+        if not execOK:
+            return(False)
         return(True)
+
+    def X1CreateFillData(self, length, fill=0):
+        data = bytearray()
+        for _ in range(length):
+            data.append(fill)
+        return(data)
 
     def X1EchoSend(self):
         data = self.DefaultPackage.copy()
@@ -283,6 +293,23 @@ class ftTX():
         for TXn in range(8):
             if ExtData[TXn] == 1:
                 self.createTA(TXn + 1)
+        return(True)
+
+    def X1ConfigWSend(self):
+        print("CONFIG")
+        data = self.DefaultPackage.copy()
+        data["CC"] = x1Send["configW"]
+        self.DataLock.acquire()
+        for TXn, TXd in self.Data.items():
+            InputData = bytearray()
+            for n in range(8):
+                InputData.append(TXd["Input"]["Digital"][n] * 128 + TXd["Input"]["Mode"][n])
+            print(' '.join(format(x, '02x') for x in InputData))
+            data["TA"][TXn] = self.X1CreateFillData(4, 1) + InputData + self.X1CreateFillData(4, 1) + self.X1CreateFillData(32)
+        self.DataLock.release()
+        execOK = self.executeX1(data)
+        if not execOK:
+            return(False)
         return(True)
 
     def waitOnDataExchange(self):
