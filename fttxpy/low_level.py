@@ -63,14 +63,8 @@ class ftTX():
         newTA["Counter"]["State"] = []
         for _ in range(4):
             newTA["Counter"]["State"].append(False)
-        newTA["Counter"]["Mode"] = []
-        for _ in range(4):
-            newTA["Counter"]["Mode"].append(0)
 
         newTA["Output"] = {}
-        newTA["Output"]["Type"] = []
-        for _ in range(4):
-            newTA["Output"]["Type"].append(0)
         newTA["Output"]["Duty"] = []
         for _ in range(8):
             newTA["Output"]["Duty"].append(0)
