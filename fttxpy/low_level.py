@@ -44,13 +44,13 @@ class ftTX():
         newTA["Input"] = {}
         newTA["Input"]["Digital"] = []
         for _ in range(8):
-            newTA["Input"]["Digital"].append(0)
+            newTA["Input"]["Digital"].append(True)
         newTA["Input"]["Value"] = []
         for _ in range(8):
             newTA["Input"]["Value"].append(0)
         newTA["Input"]["Mode"] = []
         for _ in range(8):
-            newTA["Input"]["Mode"].append(0)
+            newTA["Input"]["Mode"].append(C_INPUT_MODE_R)
 
         newTA["Counter"] = {}
         newTA["Counter"]["Reset"] = []
