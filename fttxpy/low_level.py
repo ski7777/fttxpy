@@ -9,6 +9,12 @@ C_INPUT_MODE_U = 0
 C_INPUT_MODE_R = 1
 C_INPUT_MODE_R2 = 2
 C_INPUT_MODE_US = 3
+InputModes = {
+    "U10": C_INPUT_MODE_U,
+    "R5K": C_INPUT_MODE_R,
+    "R15K": C_INPUT_MODE_R2,
+    "US": C_INPUT_MODE_US
+}
 
 
 class ftTX():
@@ -51,6 +57,9 @@ class ftTX():
         newTA["Input"]["Mode"] = []
         for _ in range(8):
             newTA["Input"]["Mode"].append(C_INPUT_MODE_R)
+        newTA["Input"]["Lock"] = []
+        for _ in range(8):
+            newTA["Input"]["Lock"].append(False)
 
         newTA["Counter"] = {}
         newTA["Counter"]["Reset"] = []
@@ -304,7 +313,6 @@ class ftTX():
             InputData = bytearray()
             for n in range(8):
                 InputData.append(TXd["Input"]["Digital"][n] * 128 + TXd["Input"]["Mode"][n])
-            print(' '.join(format(x, '02x') for x in InputData))
             data["TA"][TXn] = self.X1CreateFillData(4, 1) + InputData + self.X1CreateFillData(4, 1) + self.X1CreateFillData(32)
         self.DataLock.release()
         execOK = self.executeX1(data)
@@ -385,6 +393,57 @@ class ftTX():
             self.DataLock.release()
             raise AssertionError
         value = self.Data[ext]["Counter"]["Count"][cnt]
+        self.DataLock.release()
+        return(value)
+
+    def getInputLock(self, ext, inp):
+        assert(type(inp) == int and inp in range(8))
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        value = self.Data[ext]["Input"]["Lock"][inp]
+        self.DataLock.release()
+        return(value)
+
+    def setInputLock(self, ext, inp, state):
+        assert(type(inp) == int and inp in range(8))
+        assert(type(state) == bool)
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        self.Data[ext]["Input"]["Lock"][inp] = state
+        self.DataLock.release()
+
+    def setInputProfile(self, ext, inp, profile):
+        assert(type(inp) == int and inp in range(8))
+        assert(profile[0] in InputModes)
+        assert(type(profile[1]) == bool)
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        self.Data[ext]["Input"]["Digital"][inp] = profile[1]
+        self.Data[ext]["Input"]["Mode"][inp] = InputModes[profile[0]]
+        self.waitOnDataExchange()
+        self.DataLock.release()
+
+    def getInputValue(self, ext, inp):
+        assert(type(inp) == int and inp in range(8))
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        value = self.Data[ext]["Input"]["Value"][inp]
         self.DataLock.release()
         return(value)
 
