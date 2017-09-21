@@ -56,3 +56,6 @@ class robotx():
 
     def motor(self, output):
         return(motor(self, output))
+
+    def input(self, input):
+        return(TXinput(self, input))
