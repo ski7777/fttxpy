@@ -305,7 +305,6 @@ class ftTX():
         return(True)
 
     def X1ConfigWSend(self):
-        print("CONFIG")
         data = self.DefaultPackage.copy()
         data["CC"] = x1Send["configW"]
         self.DataLock.acquire()
@@ -432,8 +431,9 @@ class ftTX():
             raise AssertionError
         self.Data[ext]["Input"]["Digital"][inp] = profile[1]
         self.Data[ext]["Input"]["Mode"][inp] = InputModes[profile[0]]
-        self.waitOnDataExchange()
         self.DataLock.release()
+        self.waitOnDataExchange()
+        self.ConfigChanged.set()
 
     def getInputValue(self, ext, inp):
         assert(type(inp) == int and inp in range(8))
