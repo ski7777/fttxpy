@@ -54,8 +54,8 @@ class robotx():
     def getVersion(self):
         return(self.parent.getVersion(self.ext))
 
-    def motor(self, output):
-        return(motor(self, output))
+    def motor(self, o):
+        return(motor(self, o))
 
-    def input(self, input):
-        return(TXinput(self, input))
+    def input(self, i):
+        return(TXinput(self, i))
