@@ -68,3 +68,9 @@ class robotx():
 
     def ultrasonic(self, i):
         return(ultrasonic(self, i))
+
+    def colorsensor(self, i):
+        return(colorsensor(self, i))
+
+    def trailfollower(self, i):
+        return(trailfollower(self, i))

@@ -136,3 +136,48 @@ class ultrasonic():
 
     def __del__(self):
         self.outer.setInputLock(self.ext, self.input, False)
+
+
+class colorsensor():
+    def __init__(self, parent, input):
+        assert(type(input) == int and input in range(1, 9))
+        self.parent = parent
+        self.outer = self.parent.parent
+        self.ext = self.parent.ext
+        self.input = input - 1
+        assert(not self.outer.getInputLock(self.ext, self.input))
+        self.outer.setInputProfile(self.ext, self.input, ('U10', False))
+        self.outer.setInputLock(self.ext, self.input, True)
+
+    def voltage(self):
+        return(self.outer.getInputValue(self.ext, self.input))
+
+    def color(self):
+        c = self._outer.getCurrentInput(num - 1)
+        if c < 200:
+            return('weiss')
+        elif c < 1000:
+            return('rot')
+        else:
+            return('blau')
+
+    def __del__(self):
+        self.outer.setInputLock(self.ext, self.input, False)
+
+
+class trailfollower():
+    def __init__(self, parent, input):
+        assert(type(input) == int and input in range(1, 9))
+        self.parent = parent
+        self.outer = self.parent.parent
+        self.ext = self.parent.ext
+        self.input = input - 1
+        assert(not self.outer.getInputLock(self.ext, self.input))
+        self.outer.setInputProfile(self.ext, self.input, ('U10', True))
+        self.outer.setInputLock(self.ext, self.input, True)
+
+    def state(self):
+        return(self.outer.getInputValue(self.ext, self.input))
+
+    def __del__(self):
+        self.outer.setInputLock(self.ext, self.input, False)
