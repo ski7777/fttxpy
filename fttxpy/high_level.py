@@ -59,3 +59,6 @@ class robotx():
 
     def input(self, i):
         return(TXinput(self, i))
+
+    def output(self, o):
+        return(output(self, o))

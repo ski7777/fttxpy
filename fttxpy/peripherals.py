@@ -72,3 +72,18 @@ class TXinput():  # renamed due conflict with built-in input()
 
     def __del__(self):
         self.outer.setInputLock(self.ext, self.input, False)
+
+
+class output():
+    def __init__(self, parent, output):
+        assert(type(output) == int and output in range(1, 9))
+        self.parent = parent
+        self.outer = self.parent.parent
+        self.ext = self.parent.ext
+        self.output = output - 1
+        assert(not self.outer.getOutputLock(self.ext, self.output))
+        self.outer.setOutputLock(self.ext, self.output, True)
+
+    def setLevel(self, level):
+        assert(type(level) == int and level in range(513))
+        self.outer.setOutDuty(self.ext, self.output, level)
