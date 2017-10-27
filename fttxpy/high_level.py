@@ -65,3 +65,6 @@ class robotx():
 
     def resistor(self, i):
         return(resistor(self, i))
+
+    def ultrasonic(self, i):
+        return(ultrasonic(self, i))

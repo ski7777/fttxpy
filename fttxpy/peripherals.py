@@ -118,3 +118,21 @@ class resistor():
 
     def __del__(self):
         self.outer.setInputLock(self.ext, self.input, False)
+
+
+class ultrasonic():
+    def __init__(self, parent, input):
+        assert(type(input) == int and input in range(1, 9))
+        self.parent = parent
+        self.outer = self.parent.parent
+        self.ext = self.parent.ext
+        self.input = input - 1
+        assert(not self.outer.getInputLock(self.ext, self.input))
+        self.outer.setInputProfile(self.ext, self.input, ('US', False))
+        self.outer.setInputLock(self.ext, self.input, True)
+
+    def distance(self):
+        return(self.outer.getInputValue(self.ext, self.input))
+
+    def __del__(self):
+        self.outer.setInputLock(self.ext, self.input, False)
