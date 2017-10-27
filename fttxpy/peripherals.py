@@ -10,17 +10,22 @@ class motor():
         self.outer = self.parent.parent
         self.ext = self.parent.ext
         self.output = output - 1
+        self.outpins = [self.output * 2, self.output * 2 + 1]
+        assert(not self.outer.getOutputLock(self.ext, self.outpins[0]))
+        assert(not self.outer.getOutputLock(self.ext, self.outpins[1]))
+        self.outer.setOutputLock(self.ext, self.outpins[0], True)
+        self.outer.setOutputLock(self.ext, self.outpins[1], True)
         self.setSpeed(0)
         self.setDistance(0)
 
     def setSpeed(self, speed):
         assert(type(speed) == int and speed in range(-512, 513))
         if speed > 0:
-            self.outer.setOutDuty(self.ext, self.output * 2, speed)
-            self.outer.setOutDuty(self.ext, self.output * 2 + 1, 0)
+            self.outer.setOutDuty(self.ext, self.outpins[0], speed)
+            self.outer.setOutDuty(self.ext, self.outpins[1], 0)
         else:
-            self.outer.setOutDuty(self.ext, self.output * 2, 0)
-            self.outer.setOutDuty(self.ext, self.output * 2 + 1, -speed)
+            self.outer.setOutDuty(self.ext, self.outpins[0], 0)
+            self.outer.setOutDuty(self.ext, self.outpins[1], -speed)
 
     def setDistance(self, distance, syncto=None):
         assert(type(distance) == int)
@@ -43,7 +48,12 @@ class motor():
         return(self.outer.getCounterValue(self.ext, self.output))
 
     def stop(self):
-        pass
+        self.setSpeed(0)
+        self.setDistance(0)
+
+    def __del__(self):
+        self.outer.setOutputLock(self.ext, self.outpins[0], False)
+        self.outer.setOutputLock(self.ext, self.outpins[1], False)
 
 
 class TXinput():  # renamed due conflict with built-in input()

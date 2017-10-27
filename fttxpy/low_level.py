@@ -94,6 +94,8 @@ class ftTX():
         newTA["Output"]["PosReached"] = []
         for _ in range(4):
             newTA["Output"]["PosReached"].append(True)
+        for _ in range(8):
+            newTA["Output"]["Lock"].append(False)
 
         newTA["meta"] = {}
         newTA["meta"]["name"] = ""
@@ -417,6 +419,30 @@ class ftTX():
             self.DataLock.release()
             raise AssertionError
         self.Data[ext]["Input"]["Lock"][inp] = state
+        self.DataLock.release()
+
+    def getOutputLock(self, ext, out):
+        assert(type(out) == int and out in range(8))
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        value = self.Data[ext]["Output"]["Lock"][out]
+        self.DataLock.release()
+        return(value)
+
+    def setOutputLock(self, ext, out, state):
+        assert(type(out) == int and out in range(8))
+        assert(type(state) == bool)
+        self.DataLock.acquire()
+        try:
+            assert(type(ext) == int and ext in self.Data)
+        except AssertionError:
+            self.DataLock.release()
+            raise AssertionError
+        self.Data[ext]["Output"]["Lock"][out] = state
         self.DataLock.release()
 
     def setInputProfile(self, ext, inp, profile):
