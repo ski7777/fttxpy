@@ -3,6 +3,36 @@
 #
 
 # fttxpy X.1 Command Codes
+# import the low level class to process the return data
+from .low_level import ftTX
+from . import Debug
 
-# Closed Source
-# Will be published ASAP
+# create two dummy classes
+
+
+def CCNoProcessing(self, data):
+    return(True)
+
+
+def CCNotInplemented(self, data):
+    print("Command Code", str(data["CC"]), "is not implemented!\nIgnoring!")
+    if Debug.PrintUnknownPackageRaw:
+        print(data)
+    return(True)
+
+
+x1Recv = {
+    101: CCNoProcessing,  # EchoReply
+    102: ftTX.X1IOReply,  # InputReply
+    105: CCNoProcessing,  # ConfigWReply
+    106: ftTX.X1InfoReply,  # InfoReply
+    107: ftTX.X1StateReply  # StateReply
+}
+
+x1Send = {
+    "echo": 1,
+    "IO": 2,
+    "configW": 5,
+    "info": 6,
+    "state": 7
+}
