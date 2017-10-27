@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 
+from math import log
+
 
 class motor():
     def __init__(self, parent, output):
@@ -87,3 +89,32 @@ class output():
     def setLevel(self, level):
         assert(type(level) == int and level in range(513))
         self.outer.setOutDuty(self.ext, self.output, level)
+
+
+class resistor():
+    def __init__(self, parent, input):
+        assert(type(input) == int and input in range(1, 9))
+        self.parent = parent
+        self.outer = self.parent.parent
+        self.ext = self.parent.ext
+        self.input = input - 1
+        assert(not self.outer.getInputLock(self.ext, self.input))
+        self.outer.setInputProfile(self.ext, self.input, ('R15K', False))
+        self.outer.setInputLock(self.ext, self.input, True)
+
+    def value(self):
+        return(self.outer.getInputValue(self.ext, self.input))
+
+    def ntcTemperature(self):
+        r = self.value()
+        if r != 0:
+            x = log(self.value())
+            y = x * x * 1.39323522
+            z = x * -43.9417405
+            T = y + z + 271.870481
+        else:
+            T = 10000
+        return(T)
+
+    def __del__(self):
+        self.outer.setInputLock(self.ext, self.input, False)

@@ -62,3 +62,6 @@ class robotx():
 
     def output(self, o):
         return(output(self, o))
+
+    def resistor(self, i):
+        return(resistor(self, i))
