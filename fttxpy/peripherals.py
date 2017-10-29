@@ -90,6 +90,9 @@ class output():
         assert(type(level) == int and level in range(513))
         self.outer.setOutDuty(self.ext, self.output, level)
 
+    def __del__(self):
+        self.outer.setOutputLock(self.ext, self.output, False)
+
 
 class resistor():
     def __init__(self, parent, input):

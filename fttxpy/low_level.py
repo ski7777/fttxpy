@@ -94,6 +94,7 @@ class ftTX():
         newTA["Output"]["PosReached"] = []
         for _ in range(4):
             newTA["Output"]["PosReached"].append(True)
+        newTA["Output"]["Lock"] = []
         for _ in range(8):
             newTA["Output"]["Lock"].append(False)
 
