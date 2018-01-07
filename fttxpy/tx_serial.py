@@ -90,6 +90,8 @@ class TXSerial():
         PackageFrom = data["from"].to_bytes(4, byteorder='little')
         PackageTo = data["to"].to_bytes(4, byteorder='little')
         PackageFromTo = PackageFrom + PackageTo
+        if self.X1TID > 65535:
+            self.X1TID = 0
         PackageTID = self.X1TID.to_bytes(2, byteorder='little')
         PackageSID = self.X1SID.to_bytes(2, byteorder='little')
         PackageTIDSID = PackageTID + PackageSID
