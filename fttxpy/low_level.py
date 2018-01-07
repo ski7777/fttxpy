@@ -4,6 +4,7 @@
 import threading
 import time
 from .tx_serial import *
+from . import Debug
 
 C_INPUT_MODE_U = 0
 C_INPUT_MODE_R = 1
@@ -15,6 +16,8 @@ InputModes = {
     "R15K": C_INPUT_MODE_R2,
     "US": C_INPUT_MODE_US
 }
+
+maxRetriesAfterUnknownCC = 3
 
 
 class ftTX():
@@ -172,9 +175,21 @@ class ftTX():
         self.connection.executeCMD("stop")
 
     def executeX1(self, data):
-        execOK, retData = self.connection.X1CMD(data)
-        if not execOK:
-            return(False)
+        if Debug.PrintPackageJSONTX:
+            print("TX:", data)
+        retry = 0
+        OK = False
+        while retry < maxRetriesAfterUnknownCC and not OK:
+            if retry > 0 and Debug.PrintSendRetriesWrongCC:
+                print("Wrong CC! Retry:", retry)
+            execOK, retData = self.connection.X1CMD(data)
+            if Debug.PrintPackageJSONRX:
+                print("RX:", retData)
+            if not execOK:
+                return(False)
+            retry += 1
+            if retData["CC"] in x1Recv:
+                OK = True
         procOK = x1Recv[retData["CC"]](self, retData)
         if not procOK:
             return(False)

@@ -9,6 +9,9 @@ class Debug():
     PrintPackagePing = False
     PrintChecksumError = False
     PrintPackageSendError = False
+    PrintPackageJSONRX = False
+    PrintPackageJSONTX = False
+    PrintSendRetriesWrongCC = False
 
 
 # import TX functionalities
