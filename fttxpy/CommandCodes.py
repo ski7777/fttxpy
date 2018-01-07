@@ -13,14 +13,6 @@ from . import Debug
 def CCNoProcessing(self, data):
     return(True)
 
-
-def CCNotInplemented(self, data):
-    print("Command Code", str(data["CC"]), "is not implemented!\nIgnoring!")
-    if Debug.PrintUnknownPackageRaw:
-        print(data)
-    return(True)
-
-
 x1Recv = {
     101: CCNoProcessing,  # EchoReply
     102: ftTX.X1IOReply,  # InputReply
