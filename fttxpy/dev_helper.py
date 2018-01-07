@@ -8,7 +8,7 @@ import pyudev
 udevContext = pyudev.Context()
 
 
-def getTXDevices():
+def getTXDevices(txc=True, ftduino=False):
     ACMList = []
     path = "/dev/"
     pattern = "ttyACM*"
@@ -18,6 +18,7 @@ def getTXDevices():
                 ACMList.append(os.path.join(root, name))
     TXList = []
     for dev in ACMList:
-        if pyudev.Devices.from_device_file(udevContext, dev)["ID_MODEL"] == "ROBO_TX_Controller":
+        model = pyudev.Devices.from_device_file(udevContext, dev)["ID_MODEL"]
+        if txc and model == "ROBO_TX_Controller" or ftduino and model == "ftDuino":
             TXList.append(dev)
     return(TXList)

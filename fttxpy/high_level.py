@@ -9,9 +9,9 @@ import os.path
 
 class fttxpy(ftTX):
 
-    def __init__(self, dev=""):
+    def __init__(self, dev="", txc=True, ftduino=False):
         if dev == "":
-            TXs = getTXDevices()
+            TXs = getTXDevices(txc, ftduino)
             if len(TXs) == 0:
                 print("No TX-Controllers found!")
                 raise FileNotFoundError
