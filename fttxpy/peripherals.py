@@ -54,6 +54,7 @@ class motor():
         self.setDistance(0)
 
     def __del__(self):
+        self.stop()
         self.outer.setOutputLock(self.ext, self.outpins[0], False)
         self.outer.setOutputLock(self.ext, self.outpins[1], False)
 
@@ -91,6 +92,7 @@ class output():
         self.outer.setOutDuty(self.ext, self.output, level)
 
     def __del__(self):
+        self.setLevel(0)
         self.outer.setOutputLock(self.ext, self.output, False)
 
 
