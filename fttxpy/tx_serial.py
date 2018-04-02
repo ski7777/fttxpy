@@ -44,23 +44,6 @@ class TXSerial():
             data.append(line.decode().strip())
         return(data)
 
-    def executeCMD(self, cmd):
-        """
-        Run a command on the shell and return the data
-        """
-        if not self.ser.isOpen():
-            print("Serial communication is closed!")
-            return([])
-        # get lock
-        self.SerialLock.acquire()
-        # send data with carriage return and get data
-        self.ser.write((cmd + "\r").encode())
-        serData = self.readToList()
-        self.SerialLock.release()
-        # remove the command itself
-        serData.pop(0)
-        return(serData)
-
     # the internal X.1 data structure looks like this
     # all other data will be calculated as needed / TID/SID will be counted aumatically
     _exampleX1 = {

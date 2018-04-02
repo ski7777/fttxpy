@@ -34,10 +34,6 @@ class fttxpy(ftTX):
                 extStrList.append("Ext " + str(ext) + " (" + self.getName(ext) + ", " + self.getVersion(ext) + ")")
             print("Found extensions:", ", ".join(extStrList))
 
-    def execProgram(self, name):
-        self.loadProgram(name)
-        self.runProgram()
-
     def robotx(self, ext=0):
         assert(type(ext) == int and ext in self.Data)
         return(robotx(self, ext))

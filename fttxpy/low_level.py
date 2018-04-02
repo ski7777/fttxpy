@@ -137,43 +137,6 @@ class ftTX():
         self.DataLock.release()
         return(data)
 
-    def getPrograms(self):
-        """
-        get programs in flash of TX-C
-        """
-        # execute CMD on TX-C
-        data = self.connection.executeCMD("dir /flash")
-        programs = []
-        # grep sepecific lines
-        for line in data:
-            if ".bin" in line:
-                programs.append(line.split("  ")[1].split(".bin")[0])
-        return(programs)
-
-    def loadProgram(self, name):
-        """
-        Load a program from flsh by name
-        """
-        # execute CMD on TX-C
-        # the load cmd does not return anything so we don´t need the serial data
-        self.connection.executeCMD("load /flash/" + name + ".bin")
-
-    def runProgram(self):
-        """
-        Run a loaded program
-        """
-        # execute CMD on TX-C
-        # the run cmd does not return anything so we don´t need the serial data
-        self.connection.executeCMD("run")
-
-    def stopProgram(self):
-        """
-        Stop a running program
-        """
-        # execute CMD on TX-C
-        # the stop cmd does not return anything so we don´t need the serial data
-        self.connection.executeCMD("stop")
-
     def executeX1(self, data):
         if Debug.PrintPackageJSONTX:
             print("TX:", data)
