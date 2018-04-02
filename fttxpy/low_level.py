@@ -190,6 +190,8 @@ class ftTX():
             retry += 1
             if retData["CC"] in x1Recv:
                 OK = True
+        if not OK:
+            return(False)
         procOK = x1Recv[retData["CC"]](self, retData)
         if not procOK:
             return(False)
