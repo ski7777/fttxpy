@@ -13,6 +13,7 @@ from . import Debug
 def CCNoProcessing(self, data):
     return(True)
 
+
 x1Recv = {
     101: CCNoProcessing,  # EchoReply
     102: ftTX.X1IOReply,  # InputReply
