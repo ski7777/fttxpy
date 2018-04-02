@@ -24,26 +24,6 @@ class TXSerial():
         self.ser.close()
         self.SerialLock.release()
 
-    def reOpen(self):
-        self.SerialLock.acquire()
-        self.ser.open()
-        self.ser.read_all()
-        self.SerialLock.release()
-
-    def readToList(self):
-        """
-        Read all serial data to a list
-        """
-        # wait a moment for the data and read
-        time.sleep(0.05)
-        read = self.ser.read_all()
-        # convert data to lines and add it to a list
-        rawData = read.splitlines()
-        data = []
-        for line in rawData:
-            data.append(line.decode().strip())
-        return(data)
-
     # the internal X.1 data structure looks like this
     # all other data will be calculated as needed / TID/SID will be counted aumatically
     _exampleX1 = {
