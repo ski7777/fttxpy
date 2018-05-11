@@ -53,6 +53,7 @@ class motor():
     def stop(self):
         self.setSpeed(0)
         self.setDistance(0)
+        self.outer.setMotSync(self.ext, self.output, 0)
 
     def __del__(self):
         self.stop()
