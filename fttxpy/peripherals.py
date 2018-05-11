@@ -160,7 +160,7 @@ class colorsensor():
         return(self.outer.getInputValue(self.ext, self.input))
 
     def color(self):
-        c = self._outer.getCurrentInput(num - 1)
+        c = self.voltage()
         if c < 200:
             return('weiss')
         elif c < 1000:
