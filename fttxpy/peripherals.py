@@ -32,6 +32,8 @@ class motor():
     def setDistance(self, distance, syncto=None):
         assert(type(distance) == int)
         if syncto:
+            assert(self.ext == syncto.ext)
+            assert(self.output != syncto.output)
             self.outer.setMotSync(self.ext, self.output, syncto.output + 1)
             self.outer.setMotSync(self.ext, syncto.output, self.output + 1)
             self.outer.setMotDistance(self.ext, self.output, distance)
