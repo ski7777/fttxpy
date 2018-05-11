@@ -6,8 +6,6 @@
 # import the low level class to process the return data
 from .low_level import ftTX
 
-# create two dummy classes
-
 
 def CCNoProcessing(self, data):
     return(True)
