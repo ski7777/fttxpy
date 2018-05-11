@@ -15,5 +15,4 @@ class Debug():
 
 
 # import TX functionalities
-from .dev_helper import *
-from .high_level import *
+from .high_level import fttxpy

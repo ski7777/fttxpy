@@ -3,7 +3,7 @@
 #
 import threading
 import time
-from .tx_serial import *
+from .tx_serial import TXSerial
 from . import Debug
 
 C_INPUT_MODE_U = 0
@@ -218,10 +218,11 @@ class ftTX():
         for TXn, TXd in self.Data.items():
             CounterResetData = bytearray()
             for n in range(4):
-                if TXd["Counter"]["Reset"][n] == True:
+                if TXd["Counter"]["Reset"][n]:
                     TXd["Counter"]["ID"][n] += 1
                     TXd["Counter"]["Reset"][n] = False
-                CounterResetData = CounterResetData + TXd["Counter"]["ID"][n].to_bytes(2, byteorder='little')
+                CounterResetData = CounterResetData + \
+                    TXd["Counter"]["ID"][n].to_bytes(2, byteorder='little')
             SyncData = bytearray()
             DutyData = bytearray()
             DistanceData = bytearray()
@@ -229,10 +230,16 @@ class ftTX():
             for n in range(4):
                 SyncData.append(TXd["Output"]["Sync"][n])
                 for o in range(2):
-                    DutyData = DutyData + TXd["Output"]["Duty"][(n * 2) + o].to_bytes(2, byteorder='little')
-                DistanceData = DistanceData + TXd["Output"]["Distance"][n].to_bytes(2, byteorder='little')
-                MotorIDData = MotorIDData + TXd["Output"]["ID"][n].to_bytes(2, byteorder='little')
-            data["TA"][TXn] = CounterResetData + SyncData + DutyData + DistanceData + MotorIDData
+                    DutyData = DutyData + \
+                        TXd["Output"]["Duty"][(
+                            n * 2) + o].to_bytes(2, byteorder='little')
+                DistanceData = DistanceData + \
+                    TXd["Output"]["Distance"][n].to_bytes(
+                        2, byteorder='little')
+                MotorIDData = MotorIDData + \
+                    TXd["Output"]["ID"][n].to_bytes(2, byteorder='little')
+            data["TA"][TXn] = CounterResetData + SyncData + \
+                DutyData + DistanceData + MotorIDData
         self.DataLock.release()
         execOK = self.executeX1(data)
         if not execOK:
@@ -243,13 +250,22 @@ class ftTX():
         for TAn, TAd in data["TA"].items():
             self.DataLock.acquire()
             for n in range(8):
-                self.Data[TAn]["Input"]["Value"][n] = int.from_bytes(TAd[2 * n:(2 * n) + 2], byteorder='little', signed=True)
+                self.Data[TAn]["Input"]["Value"][n] = int.from_bytes(
+                    TAd[2 * n:(2 * n) + 2], byteorder='little', signed=True)
             for n in range(4):
                 self.Data[TAn]["Counter"]["State"][n] = not bool(TAd[16 + n])
-                self.Data[TAn]["Counter"]["Count"][n] = int.from_bytes(TAd[20 + (2 * n):20 + (2 * n) + 2], byteorder='little', signed=True)
-                self.Data[TAn]["Counter"]["Executed"][n] = int.from_bytes(TAd[32 + (2 * n):32 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Counter"]["ID"][n]
+                self.Data[TAn]["Counter"]["Count"][n] = int.from_bytes(
+                    TAd[20 + (2 * n):20 + (2 * n) + 2],
+                    byteorder='little', signed=True)
+                self.Data[TAn]["Counter"]["Executed"][n] = int.from_bytes(
+                    TAd[32 + (2 * n):32 + (2 * n) + 2],
+                    byteorder='little', signed=False) == \
+                    self.Data[TAn]["Counter"]["ID"][n]
             for n in range(4):
-                self.Data[TAn]["Output"]["PosReached"][n] = int.from_bytes(TAd[40 + (2 * n):40 + (2 * n) + 2], byteorder='little', signed=False) == self.Data[TAn]["Output"]["ID"][n]
+                self.Data[TAn]["Output"]["PosReached"][n] = int.from_bytes(
+                    TAd[40 + (2 * n):40 + (2 * n) + 2],
+                    byteorder='little', signed=False) == \
+                    self.Data[TAn]["Output"]["ID"][n]
             self.DataLock.release()
         return(True)
 
@@ -294,8 +310,10 @@ class ftTX():
         for TXn, TXd in self.Data.items():
             InputData = bytearray()
             for n in range(8):
-                InputData.append(TXd["Input"]["Digital"][n] * 128 + TXd["Input"]["Mode"][n])
-            data["TA"][TXn] = self.X1CreateFillData(4, 1) + InputData + self.X1CreateFillData(4, 1) + self.X1CreateFillData(32)
+                InputData.append(
+                    TXd["Input"]["Digital"][n] * 128 + TXd["Input"]["Mode"][n])
+            data["TA"][TXn] = self.X1CreateFillData(4, 1) + InputData + \
+                self.X1CreateFillData(4, 1) + self.X1CreateFillData(32)
         self.DataLock.release()
         execOK = self.executeX1(data)
         if not execOK:

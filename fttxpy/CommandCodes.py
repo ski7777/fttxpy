@@ -5,7 +5,6 @@
 # fttxpy X.1 Command Codes
 # import the low level class to process the return data
 from .low_level import ftTX
-from . import Debug
 
 # create two dummy classes
 

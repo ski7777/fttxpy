@@ -19,6 +19,7 @@ def getTXDevices(txc=True, ftduino=False):
     TXList = []
     for dev in ACMList:
         model = pyudev.Devices.from_device_file(udevContext, dev)["ID_MODEL"]
-        if txc and model == "ROBO_TX_Controller" or ftduino and model == "ftDuino":
+        if txc and model == "ROBO_TX_Controller" or \
+                ftduino and model == "ftDuino":
             TXList.append(dev)
     return(TXList)

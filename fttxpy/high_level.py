@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-from .low_level import *
-from .dev_helper import *
-from .peripherals import *
+from .low_level import ftTX
+from .dev_helper import getTXDevices
+from .peripherals import motor, TXinput, output, resistor, ultrasonic,\
+    colorsensor, trailfollower
 import os.path
 
 
@@ -16,7 +17,8 @@ class fttxpy(ftTX):
                 print("No TX-Controllers found!")
                 raise FileNotFoundError
             else:
-                print("Found", str(len(TXs)), "TX-Controller(s). Automatically selecting the first one!")
+                print("Found", str(len(TXs)), "TX-Controller(s).",
+                      "Automatically selecting the first one!")
                 dev = TXs[0]
         if not os.path.exists(dev):
             print("Could not find specified TX-Controller!")
@@ -31,7 +33,9 @@ class fttxpy(ftTX):
         extStrList = []
         if len(extList) > 0:
             for ext in extList:
-                extStrList.append("Ext " + str(ext) + " (" + self.getName(ext) + ", " + self.getVersion(ext) + ")")
+                extStrList.append(
+                    "Ext " + str(ext) + " (" + self.getName(ext) + ",",
+                    self.getVersion(ext) + ")")
             print("Found extensions:", ", ".join(extStrList))
 
     def robotx(self, ext=0):

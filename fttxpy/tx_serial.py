@@ -25,12 +25,13 @@ class TXSerial():
         self.SerialLock.release()
 
     # the internal X.1 data structure looks like this
-    # all other data will be calculated as needed / TID/SID will be counted aumatically
+    # all other data will be calculated as needed
+    # TID/SID will be counted aumatically
     _exampleX1 = {
         "from": 2,
         "to": 1,
         "CC": 1,
-        #"TA":
+        # "TA":
         #    {
         #        0: bytearray([0, 1, 2]),
         #        2: bytearray([3, 4, 5])
@@ -46,7 +47,9 @@ class TXSerial():
         PackageEnd = bytearray([0x03])
         PackageHeaderLen = 20
         try:
-            TALen = (len(data["TA"][list(data["TA"].keys())[0]]) + 4) * len(data["TA"])
+            TALen = (
+                len(data["TA"][list(data["TA"].keys())[0]]) + 4) * \
+                len(data["TA"])
         except IndexError:
             TALen = 0
         PackageLen = (PackageHeaderLen + TALen).to_bytes(2, byteorder='big')
@@ -60,7 +63,8 @@ class TXSerial():
         PackageTIDSID = PackageTID + PackageSID
         PackageCC = data["CC"].to_bytes(4, byteorder='little')
         PackageTAs = len(data["TA"]).to_bytes(4, byteorder='little')
-        PackageHeader = PackageStart + PackageLen + PackageFromTo + PackageTIDSID + PackageCC + PackageTAs
+        PackageHeader = PackageStart + PackageLen + \
+            PackageFromTo + PackageTIDSID + PackageCC + PackageTAs
 
         PackageData = bytearray([])
         for TANum, TAData in data["TA"].items():
@@ -94,7 +98,8 @@ class TXSerial():
                     break
         try:
             self.ser.write(FULLPackage)
-        except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException):
+        except (serial.serialutil.SerialException,
+                serial.serialutil.SerialTimeoutException):
             return(False)
         return(True)
 
@@ -122,7 +127,6 @@ class TXSerial():
                     break
 
         Package = {}
-        #Package["raw"] = serData
         PackageChecksum = int.from_bytes(serData[-3:-1], byteorder='big')
         PackageChecksumArray = serData[2:-3]
         PackageCalcChacksum = 65536
@@ -147,7 +151,8 @@ class TXSerial():
                     TAArrayStart = 24 + (SingleTALen * TAIndex)
                     TAArrayStop = 24 + (SingleTALen * (TAIndex + 1))
                     TAArray = serData[TAArrayStart:TAArrayStop]
-                    Package["TA"][int.from_bytes(TAArray[:4], byteorder='little')] = TAArray[4:]
+                    Package["TA"][int.from_bytes(
+                        TAArray[:4], byteorder='little')] = TAArray[4:]
             return(True, Package)
         else:
             return(False, Package)
@@ -170,7 +175,7 @@ class TXSerial():
                 continue
             # recieve X.1 package and get status and data
             execOK, retData = self.reciveX1Package()
-            if retData["ChecksumOK"] == False:
+            if not retData["ChecksumOK"]:
                 if Debug.PrintChecksumError:
                     print("Checksum error! Try", n + 1)
                 continue
