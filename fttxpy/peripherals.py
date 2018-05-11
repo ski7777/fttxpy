@@ -35,7 +35,6 @@ class motor():
             assert(self.ext == syncto.ext)
             assert(self.output != syncto.output)
             self.outer.setMotSync(self.ext, self.output, syncto.output + 1)
-            self.outer.setMotSync(self.ext, syncto.output, self.output + 1)
             self.outer.setMotDistance(self.ext, self.output, distance)
             self.outer.setMotDistance(self.ext, syncto.output, distance)
             self.outer.incrMotID(self.ext, self.output)
