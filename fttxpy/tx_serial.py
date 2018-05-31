@@ -41,44 +41,68 @@ class TXSerial():
     }
 
     def sendX1Package(self, data):
-        """
-        """
+        # define package start and end
         PackageStart = bytearray([0x02, 0x55])
         PackageEnd = bytearray([0x03])
+        # define package header len
         PackageHeaderLen = 20
-        try:
+        # check TAs present
+        if len(data["TA"]):
+            # assume every TA has same length
+            # length of first TA multiplied by TA count is TA total length
             TALen = (
                 len(data["TA"][list(data["TA"].keys())[0]]) + 4) * \
                 len(data["TA"])
-        except IndexError:
+        else:
+            # no TAs -> TA total length 0
             TALen = 0
+        # calculate package length
+        # (This is not the total length! This is just for the header field!)
         PackageLen = (PackageHeaderLen + TALen).to_bytes(2, byteorder='big')
+        # calculate sender and reciever
         PackageFrom = data["from"].to_bytes(4, byteorder='little')
         PackageTo = data["to"].to_bytes(4, byteorder='little')
         PackageFromTo = PackageFrom + PackageTo
+        # reset TID if it is near overflow
+        # it seems that the TID is not needed...
         if self.X1TID > 65535:
             self.X1TID = 0
+        # calculate TID and SID
         PackageTID = self.X1TID.to_bytes(2, byteorder='little')
         PackageSID = self.X1SID.to_bytes(2, byteorder='little')
         PackageTIDSID = PackageTID + PackageSID
+        # calculate CommandCode
         PackageCC = data["CC"].to_bytes(4, byteorder='little')
+        # calculate TA count
         PackageTAs = len(data["TA"]).to_bytes(4, byteorder='little')
+        # combine package header fields
         PackageHeader = PackageStart + PackageLen + \
             PackageFromTo + PackageTIDSID + PackageCC + PackageTAs
 
+        # prepare bytearray for package payload
         PackageData = bytearray([])
+        # iterate over TAs
         for TANum, TAData in data["TA"].items():
+            # calculate TA number
             TANumHex = TANum.to_bytes(4, byteorder='little')
-            PackageData = PackageData + TANumHex + TAData
+            # append to data
+            PackageData += TANumHex + TAData
 
+        # combine header data with payload
         PackageHeaderData = PackageHeader + PackageData
 
-        Chacksum = 0
+        # prepare checksum variable
+        checksum = 0
+        # iterate over all bytes from package length to end of payload
         for b in PackageHeaderData[2:]:
-            Chacksum -= b
-        PackageChecksum = Chacksum.to_bytes(2, byteorder='big', signed=True)
+            # substract byte from checksum variable
+            checksum -= b
+        # calculate checksum
+        PackageChecksum = checksum.to_bytes(2, byteorder='big', signed=True)
 
+        # combine package checksum and packahe end to package footer
         PackageFooter = PackageChecksum + PackageEnd
+        # combine to full packge
         FULLPackage = PackageHeaderData + PackageFooter
 
         if Debug.PrintPackageRaw:
@@ -96,18 +120,24 @@ class TXSerial():
                 i += 4
                 if exit:
                     break
+
+        # tray to send package
         try:
+            # send to serial connection
             self.ser.write(FULLPackage)
         except (serial.serialutil.SerialException,
                 serial.serialutil.SerialTimeoutException):
+            # return False in case of serial error
             return(False)
+        # exit gracefully if unknown error
+        # return True if ok
         return(True)
 
     def reciveX1Package(self):
-        """
-        """
+        #wait for incoming data
         while self.ser.in_waiting == 0:
             pass
+        #read data
         serData = self.ser.read_all()
 
         i = 0
@@ -126,12 +156,19 @@ class TXSerial():
                 if exit:
                     break
 
+        #prepare dict for package data
         Package = {}
+        #get packge checksum
         PackageChecksum = int.from_bytes(serData[-3:-1], byteorder='big')
+        #get data to calculate true checksum
         PackageChecksumArray = serData[2:-3]
+        #prepare checksum variable
         PackageCalcChacksum = 65536
+        # iterate over all bytes from package length to end of payload
         for b in PackageChecksumArray:
+            # substract byte from checksum variable
             PackageCalcChacksum -= b
+        #check whether checksums match
         ChecksumOK = PackageCalcChacksum == PackageChecksum
         Package["ChecksumOK"] = ChecksumOK
         if ChecksumOK:
@@ -158,9 +195,6 @@ class TXSerial():
             return(False, Package)
 
     def X1CMD(self, inData):
-        """
-        send a X.1 package and return data
-        """
         self.SerialLock.acquire()
         for n in range(20):
             st = time.time()
