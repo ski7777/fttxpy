@@ -34,7 +34,7 @@ class fttxpy(ftTX):
         if len(extList) > 0:
             for ext in extList:
                 extStrList.append(
-                    "Ext " + str(ext) + " (" + self.getName(ext) + ",",
+                    "Ext " + str(ext) + " (" + self.getName(ext) + "," +
                     self.getVersion(ext) + ")")
             print("Found extensions:", ", ".join(extStrList))
 
